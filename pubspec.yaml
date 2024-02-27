@@ -1,7 +1,7 @@
 name: fluttermocklocation
 description: "A Flutter Mock Location for Android"
-version: 0.0.2
-homepage:
+version: 0.0.3
+homepage: https://github.com/dariocavada/fluttermocklocation
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
