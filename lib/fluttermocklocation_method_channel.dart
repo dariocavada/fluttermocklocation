@@ -17,7 +17,9 @@ class MethodChannelFluttermocklocation extends FluttermocklocationPlatform {
   }
 
   /// Aggiunge un nuovo metodo per aggiornare la posizione fittizia.
-  Future<void> updateMockLocation(double latitude, double longitude) async {
+  @override
+  Future<void> updateMockLocation(double latitude, double longitude,
+      {double altitude = 0}) async {
     try {
       await methodChannel.invokeMethod('updateMockLocation', {
         'latitude': latitude,

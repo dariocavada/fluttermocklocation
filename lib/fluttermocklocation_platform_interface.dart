@@ -29,5 +29,6 @@ abstract class FluttermocklocationPlatform extends PlatformInterface {
   }
 
   // Definisci qui il nuovo metodo astratto
-  Future<void> updateMockLocation(double latitude, double longitude);
+  Future<void> updateMockLocation(double latitude, double longitude,
+      {double altitude = 0});
 }

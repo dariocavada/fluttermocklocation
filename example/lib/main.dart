@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:fluttermocklocation/fluttermocklocation.dart';
 
 void main() {
@@ -52,14 +51,22 @@ class _MyAppState extends State<MyApp> {
 
   final TextEditingController _latController = TextEditingController();
   final TextEditingController _lngController = TextEditingController();
+  final TextEditingController _altitudeController = TextEditingController();
 
   void _updateLocation() async {
     try {
+      setState(() {
+        _error = false;
+        _errorString = '';
+      });
+
       final double latitude = double.parse(_latController.text);
       final double longitude = double.parse(_lngController.text);
+      final double altitude = double.parse(_altitudeController.text);
       try {
-        await Fluttermocklocation().updateMockLocation(latitude, longitude);
-        print("Mock location updated: $latitude, $longitude");
+        await Fluttermocklocation()
+            .updateMockLocation(latitude, longitude, altitude: altitude);
+        print("Mock location updated: $latitude, $longitude, $altitude");
       } catch (e) {
         print("Error updating the location: $e");
         setState(() {
@@ -92,19 +99,24 @@ class _MyAppState extends State<MyApp> {
               ),
               TextField(
                 controller: _latController,
-                decoration: InputDecoration(labelText: 'Latitude'),
+                decoration: const InputDecoration(labelText: 'Latitude'),
                 keyboardType: TextInputType.number,
               ),
               TextField(
                 controller: _lngController,
-                decoration: InputDecoration(labelText: 'Longitude'),
+                decoration: const InputDecoration(labelText: 'Longitude'),
+                keyboardType: TextInputType.number,
+              ),
+              TextField(
+                controller: _altitudeController,
+                decoration: const InputDecoration(labelText: 'Altitude'),
                 keyboardType: TextInputType.number,
               ),
               ElevatedButton(
                 onPressed: _updateLocation,
-                child: Text('Set Mock Location'),
+                child: const Text('Set Mock Location'),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
               _error
@@ -113,7 +125,7 @@ class _MyAppState extends State<MyApp> {
                         padding: const EdgeInsets.all(12.0),
                         child: Text(
                           _errorString,
-                          style: TextStyle(color: Colors.red),
+                          style: const TextStyle(color: Colors.red),
                         ),
                       ),
                     )

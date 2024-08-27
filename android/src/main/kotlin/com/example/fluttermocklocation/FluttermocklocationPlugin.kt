@@ -33,6 +33,7 @@ class FluttermocklocationPlugin: FlutterPlugin, MethodCallHandler {
     } else if (call.method == "updateMockLocation") {
         val latitude = call.argument<Double>("latitude") ?: 0.0
         val longitude = call.argument<Double>("longitude") ?: 0.0
+        val altitude = call.argument<Double>("altitude") ?: 0.0
         updateMockLocation(context, latitude, longitude, result)
     } else {
       result.notImplemented()
@@ -57,7 +58,7 @@ class FluttermocklocationPlugin: FlutterPlugin, MethodCallHandler {
         val mockLocation = Location(LocationManager.GPS_PROVIDER).apply {
             setLatitude(latitude)
             setLongitude(longitude)
-            altitude = 0.0
+            altitude = altitude
             time = System.currentTimeMillis()
             elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos()
             accuracy = 5f
