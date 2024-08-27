@@ -1,3 +1,7 @@
+## 0.0.4
+
+* Added optional altitude parameter (default = 0)
+
 ## 0.0.3
 
 * Added LICENSE content
