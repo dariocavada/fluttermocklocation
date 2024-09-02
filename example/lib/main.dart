@@ -18,32 +18,51 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
   bool _error = false;
+  String _positionUpdated = '';
   String _errorString = '';
   final _fluttermocklocationPlugin = Fluttermocklocation();
-  Timer? _timer;
+
+  final TextEditingController _latController = TextEditingController();
+  final TextEditingController _lngController = TextEditingController();
+  final TextEditingController _altitudeController = TextEditingController();
+  final TextEditingController _delayController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     initPlatformState();
-    // Start the timer to call _updateLocation every second
-    _timer = Timer.periodic(
-      const Duration(seconds: 1),
-      (Timer t) => _updateLocation(),
-    );
+
+// Ascolta gli aggiornamenti della posizione
+    _fluttermocklocationPlugin.locationUpdates.listen((locationData) {
+      // Get the current timestamp
+      final DateTime now = DateTime.now();
+      final String formattedTimestamp =
+          "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')} "
+          "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}";
+
+      // Format the position string
+      final String positionString = 'latitude: ${locationData['latitude']}\n'
+          'longitude: ${locationData['longitude']}\n'
+          'altitude: ${locationData['altitude']}\n'
+          'timestamp: $formattedTimestamp';
+
+      // Update the position with the formatted string
+      setState(() {
+        _positionUpdated = positionString;
+      });
+
+      print(_positionUpdated);
+    });
   }
 
   @override
   void dispose() {
-    _timer?.cancel(); // Cancel the timer when the widget is disposed
     super.dispose();
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
     String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    // We also handle the message potentially returning null.
     try {
       platformVersion = await _fluttermocklocationPlugin.getPlatformVersion() ??
           'Unknown platform version';
@@ -51,19 +70,12 @@ class _MyAppState extends State<MyApp> {
       platformVersion = 'Failed to get platform version.';
     }
 
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
     if (!mounted) return;
 
     setState(() {
       _platformVersion = platformVersion;
     });
   }
-
-  final TextEditingController _latController = TextEditingController();
-  final TextEditingController _lngController = TextEditingController();
-  final TextEditingController _altitudeController = TextEditingController();
 
   void _updateLocation() async {
     try {
@@ -75,10 +87,18 @@ class _MyAppState extends State<MyApp> {
       final double latitude = double.parse(_latController.text);
       final double longitude = double.parse(_lngController.text);
       final double altitude = double.parse(_altitudeController.text);
+      final int delay =
+          int.tryParse(_delayController.text) ?? 5000; // Default to 5000 ms
+
       try {
-        await Fluttermocklocation()
-            .updateMockLocation(latitude, longitude, altitude: altitude);
-        print("Mock location updated: $latitude, $longitude, $altitude");
+        await Fluttermocklocation().updateMockLocation(
+          latitude,
+          longitude,
+          altitude: altitude,
+          delay: delay,
+        );
+        print(
+            "Mock location updated: $latitude, $longitude, $altitude with delay $delay ms");
       } catch (e) {
         print("Error updating the location: $e");
         setState(() {
@@ -89,7 +109,7 @@ class _MyAppState extends State<MyApp> {
       }
     } catch (e) {
       setState(() {
-        _errorString = 'Invalid latitude or longitude.';
+        _errorString = 'Invalid latitude, longitude, or delay.';
         _error = true;
       });
     }
@@ -124,6 +144,11 @@ class _MyAppState extends State<MyApp> {
                 decoration: const InputDecoration(labelText: 'Altitude'),
                 keyboardType: TextInputType.number,
               ),
+              TextField(
+                controller: _delayController,
+                decoration: const InputDecoration(labelText: 'Delay (ms)'),
+                keyboardType: TextInputType.number,
+              ),
               ElevatedButton(
                 onPressed: _updateLocation,
                 child: const Text('Set Mock Location'),
@@ -131,6 +156,16 @@ class _MyAppState extends State<MyApp> {
               const SizedBox(
                 height: 20,
               ),
+              (_positionUpdated != '')
+                  ? Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Text(
+                          _positionUpdated,
+                        ),
+                      ),
+                    )
+                  : Container(),
               _error
                   ? Card(
                       child: Padding(

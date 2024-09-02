@@ -1,4 +1,5 @@
 import 'fluttermocklocation_platform_interface.dart';
+import 'mock_location_updates.dart';
 
 class Fluttermocklocation {
   Future<String?> getPlatformVersion() {
@@ -6,8 +7,16 @@ class Fluttermocklocation {
   }
 
   Future<void> updateMockLocation(double latitude, double longitude,
-      {double altitude = 0}) {
-    return FluttermocklocationPlatform.instance
-        .updateMockLocation(latitude, longitude, altitude: altitude);
+      {double altitude = 0, int delay = 5000}) {
+    return FluttermocklocationPlatform.instance.updateMockLocation(
+      latitude,
+      longitude,
+      altitude: altitude,
+      delay: delay,
+    );
   }
+
+  // Aggiungi un metodo per ottenere il flusso di aggiornamenti
+  Stream<Map<String, double>> get locationUpdates =>
+      MockLocationUpdates.locationStream;
 }
