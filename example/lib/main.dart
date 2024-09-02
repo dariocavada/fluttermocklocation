@@ -20,11 +20,23 @@ class _MyAppState extends State<MyApp> {
   bool _error = false;
   String _errorString = '';
   final _fluttermocklocationPlugin = Fluttermocklocation();
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
     initPlatformState();
+    // Start the timer to call _updateLocation every second
+    _timer = Timer.periodic(
+      const Duration(seconds: 1),
+      (Timer t) => _updateLocation(),
+    );
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel(); // Cancel the timer when the widget is disposed
+    super.dispose();
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
